@@ -1,19 +1,19 @@
-import folium
 from django.shortcuts import render
-from folium.plugins import MarkerCluster
-from folium.plugins import MousePosition
-from folium.features import DivIcon
-from folium import LayerControl
-from folium import plugins
+from folium import (
+    LayerControl, plugins, Map, Marker, Icon, FeatureGroup, raster_layers)
+
 
 def city_map(request):
     template = 'map_nn/showmap.html'
 
-    m = folium.Map(width="100%", height="100%", location=[56.326844, 44.006543], zoom_start = 12, control_scale=True)
-    folium.Marker(location=[56.326844, 44.006543], popup = "Нижний Новгород", icon=folium.Icon(color = 'red')).add_to(m)
+    m = Map(location=[56.326844, 44.006543], zoom_start=12, control_scale=True)
+    Marker(
+        location=[56.326844, 44.006543],
+        popup="Нижний Новгород",
+        icon=Icon(color='red')).add_to(m)
     formatter = "function(num) {return L.Util.formatNum(num, 5);};"
 
-    mouse_position = MousePosition(
+    mouse_position = plugins.MousePosition(
         position='topright',
         separator=' Long: ',
         empty_string='NaN',
@@ -41,31 +41,39 @@ def city_map(request):
         43.964878,
     ]
     descriptions = [
-        'Нижегородский Кремль. Наиболее посещаемая достопримечательность города.Сооружение начала XVI в. Наиболее значительная постройка на территории кремля - Михайло-Архангельский собор (XVII в.)',
+        'Нижегородский Кремль. Наиболее посещаемая достопримечательность '
+        'города. '
+        'Сооружение начала XVI в. Наиболее значительная постройка на '
+        'территории '
+        'кремля - Михайло-Архангельский собор (XVII в.)',
         'Усадьба В.М. Рукавишникова',
         'Западные ворота',
         'Нижегородское отделение Государственного банка',
-        'Нижегородский метромост. Совмещённый мостовой переход через Оку в Нижнем Новгороде. Соединяет верхнюю часть города с нижней.',
+        'Нижегородский метромост. Совмещённый мостовой переход через Оку в'
+        ' Нижнем '
+        'Новгороде. Соединяет верхнюю часть города с нижней.',
     ]
 
-    Attraction = folium.FeatureGroup(name='Достопримечательности').add_to(m)
-    
-    for lat, lon, descriptions in zip(lat, lon, descriptions):
-        folium.Marker(location=[lat, lon], popup=str(descriptions), icon=folium.Icon(color = 'gray')).add_to(Attraction)
+    Attraction = FeatureGroup(name='Достопримечательности').add_to(m)
 
-    folium.raster_layers.TileLayer('Open Street Map').add_to(m)
-    folium.raster_layers.TileLayer('Stamen Terrain').add_to(m)
-    folium.raster_layers.TileLayer('Stamen Toner').add_to(m)
-    folium.raster_layers.TileLayer('Stamen Watercolor').add_to(m)
-    folium.raster_layers.TileLayer('CartoDB Positron').add_to(m)
-    folium.raster_layers.TileLayer('CartoDB Dark_Matter').add_to(m)
+    for lat, lon, descriptions in zip(lat, lon, descriptions):
+        Marker(
+            location=[lat, lon],
+            popup=str(descriptions),
+            icon=Icon(color='gray')).add_to(Attraction)
+
+    raster_layers.TileLayer('Open Street Map').add_to(m)
+    raster_layers.TileLayer('Stamen Terrain').add_to(m)
+    raster_layers.TileLayer('Stamen Toner').add_to(m)
+    raster_layers.TileLayer('Stamen Watercolor').add_to(m)
+    raster_layers.TileLayer('CartoDB Positron').add_to(m)
+    raster_layers.TileLayer('CartoDB Dark_Matter').add_to(m)
 
     # add full screen button to map
     plugins.Fullscreen().add_to(m)
     draw = plugins.Draw(export=True)
     # add draw tools to map
     draw.add_to(m)
-
 
     layer_control = LayerControl()
     m.add_child(layer_control)
